@@ -32,6 +32,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="communication_package/Tcp_server.cpp" />
+		<Unit filename="communication_package/Tcp_server.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

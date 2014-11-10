@@ -22,10 +22,13 @@ class Clients_listner
 class Tcp_server
 {
     public:
-        Tcp_server(int portNum, Clients_listner *listner); /*Constructor*/
+        Tcp_server(int portNum); /*Constructor*/
+
+        void set_clients_listner(Clients_listner *clients_listner);
+
         void start();
         void send(int clientfb, const void* buf, int length);
-        void* receive(int clientfb);
+        char* receive(int clientfb);
         void close_connection(int clientfb);
         void close_server();
 
@@ -34,7 +37,7 @@ class Tcp_server
     private:
         int hello_socketfd = -1, portNum = -1;
         bool running = false;
-        Clients_listner *listner;
+        Clients_listner *clients_listner;
 };
 
 #endif // TCP_SERVER_H

@@ -4,9 +4,12 @@
 
 using namespace std;
 
-Tcp_server::Tcp_server(int portNum, Clients_listner *listner) {
+Tcp_server::Tcp_server(int portNum) {
     this->portNum = portNum;
-    this->listner = listner;
+}
+
+void Tcp_server::set_clients_listner(Clients_listner *clients_listner) {
+    this->clients_listner = clients_listner;
 }
 
 void Tcp_server::start() {
@@ -52,25 +55,57 @@ void Tcp_server::start() {
 }
 
 void Tcp_server::notifyNewClient(int clientdf) {
-    if(this->listner != NULL)
-        listner->onNewClient(clientdf);
+    if(this->clients_listner != NULL)
+        clients_listner->onNewClient(clientdf);
 }
 
 void Tcp_server::send(int clientfb, const void* buf, int length) {
-    int n = write(clientfb, buf, length);
+    // Send size of data
+    char data_size[4];
+    int arraySize = length;
+    // convert arraySize to byte array
+    for (int i = 0; i < 4; i++) {
+        data_size[i] = (char) (arraySize & 0xff);
+        arraySize >>= 8;
+    }
+    int n = write(clientfb, data_size, 4);
     if (n < 0)
-        cout<< "Error in sending!" << endl;
+        cout << "Error while sending data!" << endl;
+    // Send data
+    n = write(clientfb, buf, length);
+    if (n < 0)
+        cout << "Error while sending data!" << endl;
 }
 
-void* Tcp_server::receive(int clientfb){
-    unsigned char buffer[256];
-    bzero(buffer, 256);
-    int n = read(clientfb, buffer, 255);
-    if (n < 0) {
-        cout << "ERROR in reading from socket!" << endl;
+char* Tcp_server::receive(int clientfb){
+    // Receive size
+    char temp[4];
+
+    int n = read(clientfb, temp, 4);
+    if (n < 0)
+        cout << "ERROR in reading from data!" << endl;
+
+	// convert received size from byte array to integer
+    int data_lenght = 0;
+    for (int i = 4 - 1; i >= 0; i--) {
+        data_lenght |= (temp[i] & 0xff);
+        if (i != 0)
+            data_lenght  <<= 8;
+    }
+    // Receive data
+    char *data = new char[data_lenght];
+    int offset = 0;
+    int num_read = 0;
+    while (offset < data_lenght
+            && (num_read = read(clientfb, data, data_lenght)) >= 0) {
+        offset += num_read;
+    }
+
+    if (offset < data_lenght) {
+        cout << "ERROR: Can't receive all the data!" << endl;
         return NULL;
     }
-    return buffer;
+    return data;
 }
 
 /**
@@ -78,11 +113,13 @@ void* Tcp_server::receive(int clientfb){
  */
 void Tcp_server::close_connection(int clientfb){
     close(clientfb);
+    cout << "Connection " << clientfb << " closed." << endl;
 }
 
 void Tcp_server::close_server() {
     running = false;
     close(hello_socketfd);
+    cout << "Server closed." << endl;
 }
 
 Tcp_server::~Tcp_server()

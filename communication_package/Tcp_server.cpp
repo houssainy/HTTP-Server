@@ -13,6 +13,7 @@ void Tcp_server::set_clients_listner(Clients_listner *clients_listner) {
 }
 
 void Tcp_server::start() {
+    cout << "Server Started on port " << this->portNum << "..." << endl;
     running = true;
 
     // Open TCP server socket using internet domain
@@ -71,6 +72,7 @@ void Tcp_server::send(int clientfb, const void* buf, int length) {
     int n = write(clientfb, data_size, 4);
     if (n < 0)
         cout << "Error while sending data!" << endl;
+    cout << (char*)buf<< " Size = " << length<< endl;
     // Send data
     n = write(clientfb, buf, length);
     if (n < 0)

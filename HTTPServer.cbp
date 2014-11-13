@@ -34,6 +34,7 @@
 		</Compiler>
 		<Unit filename="communication_package/Tcp_server.cpp" />
 		<Unit filename="communication_package/Tcp_server.h" />
+		<Unit filename="listners_package/Messages_listner.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

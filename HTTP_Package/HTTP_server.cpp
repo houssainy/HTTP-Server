@@ -30,7 +30,7 @@ void HTTP_server::onNewClient(int socketfd) {
             cout << line << " Size = " << line.size()<< endl;
             const char*data = line.c_str();
             outfile << data << endl;
-            //tcp_server->send(socketfd, line.c_str(), line.size());
+          //  tcp_server->send(socketfd, line.c_str(), line.size());
         }
 
         outfile.close();
@@ -48,4 +48,5 @@ void HTTP_server::onNewClient(int socketfd) {
 HTTP_server::~HTTP_server()
 {
     //dtor
+    delete tcp_server;
 }

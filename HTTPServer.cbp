@@ -32,6 +32,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="HTTP_Package/HTTP_server.cpp" />
+		<Unit filename="HTTP_Package/HTTP_server.h" />
 		<Unit filename="communication_package/Tcp_server.cpp" />
 		<Unit filename="communication_package/Tcp_server.h" />
 		<Unit filename="listners_package/Messages_listner.h" />

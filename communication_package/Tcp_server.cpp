@@ -13,7 +13,7 @@ void Tcp_server::set_clients_listner(Clients_listner *clients_listner) {
 }
 
 void Tcp_server::start() {
-    cout << "Server Started on port " << this->portNum << "..." << endl;
+    cout << "Server Starting..." << endl;
     running = true;
 
     // Open TCP server socket using internet domain
@@ -34,14 +34,15 @@ void Tcp_server::start() {
 
     if (bind(hello_socketfd, (struct sockaddr *) &serv_addr,
             sizeof(serv_addr)) < 0) {
-        cout<< "Error on binding!" << endl;
+        cout<< "Error on binding port " << this->portNum << endl;
         exit(EXIT_FAILURE);
     }
 
     // Start listening with max 5 backlog queue.
     listen(hello_socketfd,5);
 
-    cout << "Waiting for clients..." << endl;
+    cout << "Start Listnening on port " << this->portNum
+         << "..." << endl;
     while(running) {
         clilen = sizeof(cli_addr);
         int newsocketfd = accept(hello_socketfd,
@@ -60,7 +61,7 @@ void Tcp_server::notifyNewClient(int clientdf) {
         clients_listner->onNewClient(clientdf);
 }
 
-void Tcp_server::send(int clientfb, const void* buf, int length) {
+void Tcp_server::send(int clientfb, const char* buf, int length) {
     // Send size of data
     char data_size[4];
     int arraySize = length;
@@ -72,7 +73,6 @@ void Tcp_server::send(int clientfb, const void* buf, int length) {
     int n = write(clientfb, data_size, 4);
     if (n < 0)
         cout << "Error while sending data!" << endl;
-    cout << (char*)buf<< " Size = " << length<< endl;
     // Send data
     n = write(clientfb, buf, length);
     if (n < 0)

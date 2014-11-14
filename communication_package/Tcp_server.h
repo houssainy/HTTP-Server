@@ -25,13 +25,13 @@ class Tcp_server
         Tcp_server(int portNum); /*Constructor*/
 
         void set_clients_listner(Clients_listner *clients_listner);
-
         void start();
-        void send(int clientfb, const void* buf, int length);
+        void send(int clientfb, const char* buf, int length);
         char* receive(int clientfb);
         void close_connection(int clientfb);
         void close_server();
 
+        // @Override
         void notifyNewClient(int clientdf);
         virtual ~Tcp_server(); /*Destructor*/
     private:

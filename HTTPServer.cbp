@@ -32,11 +32,15 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="HTTP_Package/HTTP_Generator.cpp" />
+		<Unit filename="HTTP_Package/HTTP_Generator.h" />
+		<Unit filename="HTTP_Package/HTTP_Parser.cpp" />
+		<Unit filename="HTTP_Package/HTTP_Parser.h" />
+		<Unit filename="HTTP_Package/HTTP_Utils.cpp" />
+		<Unit filename="HTTP_Package/HTTP_Utils.h" />
 		<Unit filename="HTTP_Package/HTTP_server.cpp" />
 		<Unit filename="HTTP_Package/HTTP_server.h" />
-		<Unit filename="communication_package/Tcp_server.cpp" />
-		<Unit filename="communication_package/Tcp_server.h" />
-		<Unit filename="listners_package/Messages_listner.h" />
+		<Unit filename="dynamic_array_package/Dynamic_array.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

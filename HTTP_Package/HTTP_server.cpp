@@ -53,13 +53,16 @@ void HTTP_server::start() {
 void HTTP_server::onNewClient(int socketfd) {
     cout<< "Client "<< socketfd <<" connected." << endl;
 
+    // Receive command
     Dynamic_array data;
     receive(socketfd, &data);
     for(int i = 0; i < data.size(); i++) {
         cout<< data.get_at(i);
     }
     cout << endl;
-
+    cout << "Received" << endl;
+    string msg = "HTTP/1.1 200 OK\r\nContent-Lenght:10\r\n\r\nMohamedALi\r\n";
+    send(socketfd, msg.c_str(), msg.size());
     close_connection(socketfd);
 }
 

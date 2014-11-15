@@ -9,6 +9,8 @@
 #include <sys/socket.h> /* socket */
 #include <netinet/in.h> /* socket */
 
+#include "../dynamic_array_package/Dynamic_array.h"
+
 /**
  * A listner interface to notify the implemented class
  * about the new connected clients.
@@ -26,8 +28,8 @@ class Tcp_server
 
         void set_clients_listner(Clients_listner *clients_listner);
         void start();
-        void send(int clientfb, const char* buf, int length);
-        char* receive(int clientfb);
+        void send(int clientfd, const char* buf, int length);
+        void receive(int clientfd, Dynamic_array *data);
         void close_connection(int clientfb);
         void close_server();
 

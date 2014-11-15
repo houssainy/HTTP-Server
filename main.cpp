@@ -3,7 +3,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    int portNumber = 80;
+    int portNumber = 8080;
     if(argc > 1) {
         portNumber = atoi(argv[1]);
     }

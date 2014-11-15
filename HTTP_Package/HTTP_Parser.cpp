@@ -10,8 +10,6 @@ unordered_map <string, string> HTTP_Parser::parse_msg(string msg)
 {
     vector <string> temp;
     unordered_map <string, string> values;
-    pair <string, string> data_pair (HTTP_Utils::DATA ,"");
-    values.insert(data_pair);
     istringstream ss (msg);
     string token;
     int line = 0;
@@ -19,7 +17,11 @@ unordered_map <string, string> HTTP_Parser::parse_msg(string msg)
     while (getline(ss, token, '\n'))
     {
         if (token.size()==0)
+        {
             data_flag = true;
+            pair <string, string> data_pair (HTTP_Utils::DATA ,"");
+            values.insert(data_pair);
+        }
         if (line == 0)
         {
             parse_first_line(values, token);
@@ -34,9 +36,6 @@ unordered_map <string, string> HTTP_Parser::parse_msg(string msg)
             values.at(HTTP_Utils::DATA) +=token+"\n";
 
 
-    }
-    for (auto& x: values) {
-        cout << x.first << ": " << x.second << endl;
     }
     return values;
 }

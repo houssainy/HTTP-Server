@@ -8,6 +8,9 @@ class Dynamic_array
     Dynamic_array() {
       array_size = 256;
       array = new char[array_size];
+      for(int i = 0; i < 256; i++) {
+        array[i] = '\0';
+      }
     }
 
     int size() {
@@ -31,6 +34,10 @@ class Dynamic_array
 
     char *get_array() {
       return array;
+    }
+
+    ~Dynamic_array() {
+      delete array;
     }
   private:
     char *array;

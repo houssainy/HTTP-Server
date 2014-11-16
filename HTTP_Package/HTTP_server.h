@@ -45,10 +45,12 @@ class HTTP_server {
     // receive it requests and handle it.
     void onNewClient(int socketfd);
 
-    void receive_get_request(int clientfd, unordered_map<string, char*> *values);
-    void receive_post_request(int clientfd, unordered_map<string, char*> *values);
+    void receive_request(int clientfd, unordered_map<string, char*> *values);
 
-    void send_response(int clientfd, char* http_type, char* requested_path);
+    void send_get_response(int clientfd, char* http_type, char* requested_path);
+    void send_post_response(int clientfd, char* http_type);
+    void receive_data(int clientfd, char* file_name, int data_length);
+
     void send(int clientfd, const char* buf, int length);
     // Close connection with the given client
     void close_connection(int clientfb);

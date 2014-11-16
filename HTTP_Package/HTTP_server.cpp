@@ -51,17 +51,27 @@ void HTTP_server::start() {
 void HTTP_server::onNewClient(int clientfd) {
   cout<< "Client "<< clientfd <<" connected." << endl;
 
+  bool httpPlus = false;
+  bool timeOut = false;
   // Receive command
   // Get GET request from client
-  unordered_map<string, char*> values;
-  receive_get_request(clientfd, &values);
+  while(httpPlus && !timeOut) {
+    unordered_map<string, char*> values;
+    receive_request(clientfd, &values);
+    if (values[HTTP_Utils::METHOD_TYPE] == HTTP_Utils::POST) {
+      receive_data(clientfd, values[HTTP_Utils::FILE_NAME], atoi(values[HTTP_Utils::CONTENT_LENGTH]));
+      send_post_response(clientfd, values[HTTP_Utils::HTTP_TYPE]);
+    } else if (values[HTTP_Utils::METHOD_TYPE] == HTTP_Utils::GET){
+      send_get_response(clientfd, values[HTTP_Utils::HTTP_TYPE], values[HTTP_Utils::FILE_NAME]);
+    }
 
-  // TODO(houssainy)
-  send_response(clientfd, values[HTTP_Utils::HTTP_TYPE], values[HTTP_Utils::FILE_NAME]);
+    httpPlus = values[HTTP_Utils::HTTP_TYPE] == HTTP_Utils::HTTP1 ? true : false;
+  }
+
   close_connection(clientfd);
 }
 
-void HTTP_server::receive_get_request(int clientfd, unordered_map<string, char*> *values) {
+void HTTP_server::receive_request(int clientfd, unordered_map<string, char*> *values) {
   Dynamic_array char_array;
 
   char buffer[256];
@@ -82,11 +92,7 @@ void HTTP_server::receive_get_request(int clientfd, unordered_map<string, char*>
   }
 }
 
-void HTTP_server::receive_post_request(int clientfd, unordered_map<string, char*> *values) {
-
-}
-
-void HTTP_server::send_response(int clientfd, char* http_type, char* requested_path) {
+void HTTP_server::send_get_response(int clientfd, char* http_type, char* requested_path) {
   string response;
   ifstream file(requested_path);
   if (file.is_open()) {
@@ -103,6 +109,29 @@ void HTTP_server::send_response(int clientfd, char* http_type, char* requested_p
   } else {
     response = http_generator->generate_get_response(http_type, HTTP_Utils::NOT_FOUND, " ", 0);
     send(clientfd, response.c_str(), response.size());
+  }
+}
+
+void HTTP_server::send_post_response(int clientfd, char* http_type) {
+  string response = http_generator->generate_post_response(http_type, HTTP_Utils::OK, " ");
+  send(clientfd, response.c_str(), response.size());
+}
+
+void HTTP_server::receive_data(int clientfd, char* file_name, int data_length) {
+  char buffer[256];
+  Dynamic_array data;
+  int num_read = 0, offset = 0;
+  ofstream out_stream;
+  out_stream.open(file_name);
+  while ((num_read = read(clientfd, buffer, sizeof(buffer))) > 0) {
+    for (int i = 0; i < num_read; i++) {
+      out_stream << buffer[i];
+      offset++;
+      if (offset == data_length) {
+          out_stream.close();
+          return;
+      }
+    }
   }
 }
 

@@ -90,15 +90,16 @@ void HTTP_server::send_response(int clientfd, char* http_type, char* requested_p
   string response;
   ifstream file(requested_path);
   if (file.is_open()) {
-    response = http_generator->generate_get_response(http_type, HTTP_Utils::OK, " ", 0);
-    send(clientfd, response.c_str(), response.size());
-
     Dynamic_array data;
     char c;
     while(file.get(c))
       data.insert(c);
 
+    response = http_generator->generate_get_response(http_type, HTTP_Utils::OK, " ", data.size());
+    send(clientfd, response.c_str(), response.size());
+
     send(clientfd, data.get_array(), data.size());
+    file.close();
   } else {
     response = http_generator->generate_get_response(http_type, HTTP_Utils::NOT_FOUND, " ", 0);
     send(clientfd, response.c_str(), response.size());

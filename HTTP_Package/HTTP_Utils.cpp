@@ -3,7 +3,7 @@
 const string HTTP_Utils::HTTP1 = "HTTP/1.0";
 const string HTTP_Utils::HTTP2 = "HTTP/1.1";
 const string HTTP_Utils::OK = "200 OK";
-const string HTTP_Utils::NOT_FOUND = "404 Not Found";
+const string HTTP_Utils::NOT_FOUND = "404-Not-Found";
 const string HTTP_Utils::METHOD_TYPE = "Method-type";
 const string HTTP_Utils::FILE_NAME = "file-name";
 const string HTTP_Utils::HTTP_TYPE = "HTTP-type";

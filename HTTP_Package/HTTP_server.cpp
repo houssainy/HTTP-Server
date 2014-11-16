@@ -43,8 +43,8 @@ void HTTP_server::start() {
       cout << "Error in accept!" << endl;
       exit(EXIT_FAILURE);
     }
-    std::thread thread_(&HTTP_server::onNewClient, this, newsocketfd);
-    thread_.join(); // TODO(houssainy) remove join to handle multiple connections!
+    threads[thread_count++] = std::thread(&HTTP_server::onNewClient, this, newsocketfd);
+   // thread_.join(); // TODO(houssainy) remove join to handle multiple connections!
   }
 }
 
@@ -52,10 +52,10 @@ void HTTP_server::onNewClient(int clientfd) {
   cout<< "Client "<< clientfd <<" connected." << endl;
 
   bool httpPlus = false;
-  bool timeOut = false;
+
   // Receive command
   // Get GET request from client
-  while(httpPlus && !timeOut) {
+  do {
     unordered_map<string, char*> values;
     receive_request(clientfd, &values);
     if (values[HTTP_Utils::METHOD_TYPE] == HTTP_Utils::POST) {
@@ -65,8 +65,8 @@ void HTTP_server::onNewClient(int clientfd) {
       send_get_response(clientfd, values[HTTP_Utils::HTTP_TYPE], values[HTTP_Utils::FILE_NAME]);
     }
 
-    httpPlus = values[HTTP_Utils::HTTP_TYPE] == HTTP_Utils::HTTP1 ? true : false;
-  }
+    httpPlus = values[HTTP_Utils::HTTP_TYPE] == HTTP_Utils::HTTP2 ? true : false;
+  } while(httpPlus);
 
   close_connection(clientfd);
 }
@@ -107,6 +107,7 @@ void HTTP_server::send_get_response(int clientfd, char* http_type, char* request
     send(clientfd, data.get_array(), data.size());
     file.close();
   } else {
+    cout << "File not found requested!" << endl;
     response = http_generator->generate_get_response(http_type, HTTP_Utils::NOT_FOUND, " ", 0);
     send(clientfd, response.c_str(), response.size());
   }
@@ -156,5 +157,8 @@ void HTTP_server::close_server() {
 }
 
 HTTP_server::~HTTP_server() {
+  for(int i = 0; i < thread_count; i++) {
+    threads[i].join();
+  }
   close_server();
 }

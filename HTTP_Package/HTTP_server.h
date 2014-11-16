@@ -41,6 +41,8 @@ class HTTP_server {
     HTTP_Parser http_parser;
     HTTP_Generator *http_generator; // TODO(houssainy)
 
+    int thread_count = 0;
+    std::thread threads[10];
     // This function will be called for each new client connect to the server to
     // receive it requests and handle it.
     void onNewClient(int socketfd);

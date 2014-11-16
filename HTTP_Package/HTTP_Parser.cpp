@@ -6,119 +6,94 @@ HTTP_Parser::HTTP_Parser()
     //ctor
 }
 
-unordered_map <string, string> HTTP_Parser::parse_msg(string msg)
-{
-    vector <string> temp;
-    unordered_map <string, string> values;
-    istringstream ss (msg);
-    string token;
-    int line = 0;
-    bool data_flag = false ;
-    while (getline(ss, token, '\n'))
-    {
-        if (token.size()==0)
-        {
-            data_flag = true;
-            pair <string, string> data_pair (HTTP_Utils::DATA ,"");
-            values.insert(data_pair);
-        }
-        if (line == 0)
-        {
-            parse_first_line(values, token);
-            line++;
-        }
-        else if (!data_flag)
-        {
-            parse_line (values, token);
-            line++;
-        }
-        else if (token.size()!=0)
-            values.at(HTTP_Utils::DATA) +=token+"\n";
+void HTTP_Parser::parse_msg(unordered_map<string, char *> *values,char * msg) {
+    Dynamic_array *token = new Dynamic_array();
 
-
-    }
-    return values;
-}
-void HTTP_Parser::parse_first_line(unordered_map<string, string> &map, string line)
-{
-    istringstream temp_ss (line);
-    string sub_token ;
-    int token_number = 0 ;
-    bool request , response ;
-    while(getline(temp_ss,sub_token, ' '))
-    {
-        pair <string, string> temp_pair;
-        if (token_number ==0 )
-        {
-            request = is_request(sub_token);
-            response = is_response(sub_token);
-            if(request)
-                temp_pair= make_pair(HTTP_Utils::METHOD_TYPE,sub_token);
-            else if(response)
-                temp_pair= make_pair(HTTP_Utils::HTTP_TYPE,sub_token);
-            map.insert(temp_pair);
-        }
-        else if (token_number ==1 )
-        {
-            if (request)
-                temp_pair= make_pair(HTTP_Utils::FILE_NAME,sub_token);
-            else if (response)
-                temp_pair= make_pair(HTTP_Utils::STATUS,sub_token);
-            map.insert(temp_pair);
-        }
-        else
-        {
-            if (request)
-            {
-
-                temp_pair= make_pair(HTTP_Utils::HTTP_TYPE,sub_token);
-                map.insert(temp_pair);
+    bool first_line = false;
+    int i = 0;
+    pair <string, char *> temp_pair;
+    for(int i = 0; msg[i] != '\0'; i++) {
+        if(!first_line) { // first line
+            int token_number = 0 ;
+            first_line = true;
+            bool request , response ;
+            for(; msg[i] != '\r'; i++) {
+                if(msg[i] == ' ') {
+                    if (token_number==0){
+                        request = is_request(token->get_array());
+                        response = is_response(token->get_array());
+                        if(request)
+                            temp_pair= make_pair(HTTP_Utils::METHOD_TYPE,token->get_array());
+                        else if(response)
+                            temp_pair= make_pair(HTTP_Utils::HTTP_TYPE,token->get_array());
+                        values->insert(temp_pair);
+                        token = new Dynamic_array();
+                    }else if (token_number==1){
+                            if (request){
+                                temp_pair= make_pair(HTTP_Utils::FILE_NAME,token->get_array());
+                                values->insert(temp_pair);
+                                token = new Dynamic_array();
+                            }
+                    }else if (token_number==2){
+                             if (request)
+                                temp_pair= make_pair(HTTP_Utils::HTTP_TYPE,token->get_array());
+                            else if (response)
+                                temp_pair= make_pair(HTTP_Utils::STATUS,token->get_array());
+                            values->insert(temp_pair);
+                            token = new Dynamic_array();
+                    } else {
+                        cout<<"invalid number of parameter"<<endl;
+                        delete token;
+                        return ;
+                    }
+                    token_number++;
+                }
+                else
+                    token->insert(msg[i]);
             }
-            else if (response)
-                map.at(HTTP_Utils::STATUS)+=" "+sub_token;
+            i++;
+        } else { // header
+            token = new Dynamic_array();
+            string key = "";
+            bool key_token = false;
+            for(; msg[i] != '\r'; i++) {
+                if(msg[i] == ':' && !key_token) {
+                    key += string(token->get_array());
+                    token = new Dynamic_array();
+                    key_token = true;
+                } else
+                    token->insert(msg[i]);
+            }
+            i++;
+            temp_pair = make_pair(key, token->get_array());
+            values->insert(temp_pair);
         }
-        token_number ++;
     }
 
+    delete token;
 }
 
-void HTTP_Parser::parse_line(unordered_map<string, string> &map,string line)
+bool HTTP_Parser::is_request(char *method_type)
 {
-    istringstream temp_ss (line);
-    string sub_token , key;
-    int token_number =0 ;
-    while(getline(temp_ss,sub_token, ':'))
-    {
-        if (token_number== 0)
-            key = sub_token;
-        else if (token_number==1)
-        {
-            pair <string, string> temp_pair (key,sub_token);
-            map.insert(temp_pair);
-
-        }
-        else
-        {
-            map.at(key) += ":"+sub_token;
-        }
-        token_number ++;
-    }
-}
-
-bool HTTP_Parser::is_request(string method_type)
-{
-    if (method_type == HTTP_Utils::GET ||method_type == HTTP_Utils::POST )
+    if (is_equal(method_type, HTTP_Utils::GET)||is_equal(method_type, HTTP_Utils::POST))
         return true;
     return false ;
 }
 
-bool HTTP_Parser::is_response(string HTTP_type)
+bool HTTP_Parser::is_response(char *HTTP_type)
 {
-    if (HTTP_type==HTTP_Utils::HTTP1||HTTP_type==HTTP_Utils::HTTP2)
+    if (is_equal(HTTP_type, HTTP_Utils::HTTP1)||is_equal(HTTP_type, HTTP_Utils::HTTP2))
         return true;
     return false;
 }
 
+bool HTTP_Parser::is_equal(char* array, string s) {
+    for(int i = 0; i < s.size() && array[i] != '\0'; i++) {
+        if(array[i] != s[i])
+            return false;
+    }
+    return true;
+}
 HTTP_Parser::~HTTP_Parser()
 {
     //dtor

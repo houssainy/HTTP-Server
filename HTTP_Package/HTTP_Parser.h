@@ -8,6 +8,7 @@
 #include <vector>
 #include <sstream>
 #include "HTTP_Utils.h"
+#include "../dynamic_array_package/Dynamic_array.h"
 
 
 using namespace std;
@@ -16,14 +17,13 @@ class HTTP_Parser
 {
     public:
         HTTP_Parser();
-        unordered_map <string , string > parse_msg(string msg);
+        void parse_msg(unordered_map<string, char *> *values,char* msg);
         virtual ~HTTP_Parser();
     protected:
     private:
-        void parse_first_line(unordered_map<string, string> &map,string line);
-        void parse_line(unordered_map<string, string> &map,string line);
-        bool is_request(string method_type);
-        bool is_response(string HTTP_type);
+        bool is_request(char * method_type);
+        bool is_response(char *HTTP_type);
+        bool is_equal(char* array, string s);
 };
 
 #endif // HTTP_PARSER_H

@@ -3,13 +3,13 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    int portNumber = 8083;
-    if(argc > 1) {
-        portNumber = atoi(argv[1]);
-    }
+  int portNumber = 80;
+  if(argc > 1) {
+      portNumber = atoi(argv[1]);
+  }
 
-    HTTP_server httpServer(portNumber);
-    httpServer.start();
+  HTTP_server httpServer(portNumber);
+  httpServer.start();
 
-    return 0;
+  return 0;
 }

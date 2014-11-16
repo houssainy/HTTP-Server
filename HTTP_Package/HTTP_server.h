@@ -13,6 +13,7 @@
 #include <netinet/in.h> /* socket */
 
 #include <thread>
+#include <unordered_map>
 
 #include "HTTP_Parser.h"
 #include "HTTP_Generator.h"
@@ -21,24 +22,35 @@
 
 using namespace std;
 
-class HTTP_server
-{
-    public:
-        HTTP_server(int portNumber);
-        void start();
+/**
+* This class is an ipmlementation for a simple HTTP Server.
+*
+* This server handle the basic HTTP requests (GET, POST) and their responses.
+*/
+class HTTP_server {
+  public:
+    HTTP_server(int port_number);
+    // Start the server and stay running until close is called.
+    void start();
+    void close_server();
+    virtual ~HTTP_server();
+  private:
+    int hello_socketfd = -1;
+    int port_number = -1;
+    bool is_running = false;
+    HTTP_Parser http_parser;
 
-        virtual ~HTTP_server();
-    private:
-        int hello_socketfd = -1, portNum = -1;
-        bool running = false;
-        HTTP_Parser http_parser;
+    // This function will be called for each new client connect to the server to
+    // receive it requests and handle it.
+    void onNewClient(int socketfd);
 
-        void send(int clientfd, const char* buf, int length);
-        void receive(int clientfd, Dynamic_array *data);
-        void close_connection(int clientfb);
-        void close_server();
+    void receive_get_request(int clientfd, unordered_map<string, char*> *values);
+    void receive_post_request(int clientfd, unordered_map<string, char*> *values);
 
-        void onNewClient(int socketfd);
+    void send_response(int clientfd, char* requested_path);
+    void send(int clientfd, const char* buf, int length);
+    // Close connection with the given client
+    void close_connection(int clientfb);
 };
 
 #endif // HTTP_SERVER_H

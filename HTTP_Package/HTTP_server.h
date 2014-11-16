@@ -39,6 +39,7 @@ class HTTP_server {
     int port_number = -1;
     bool is_running = false;
     HTTP_Parser http_parser;
+    HTTP_Generator *http_generator; // TODO(houssainy)
 
     // This function will be called for each new client connect to the server to
     // receive it requests and handle it.
@@ -47,7 +48,7 @@ class HTTP_server {
     void receive_get_request(int clientfd, unordered_map<string, char*> *values);
     void receive_post_request(int clientfd, unordered_map<string, char*> *values);
 
-    void send_response(int clientfd, char* requested_path);
+    void send_response(int clientfd, char* http_type, char* requested_path);
     void send(int clientfd, const char* buf, int length);
     // Close connection with the given client
     void close_connection(int clientfb);

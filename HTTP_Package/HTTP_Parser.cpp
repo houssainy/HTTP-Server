@@ -52,6 +52,14 @@ void HTTP_Parser::parse_msg(unordered_map<string, char *> *values,char * msg) {
                     token->insert(msg[i]);
             }
             i++;
+            if(token->size() > 0) {
+                if (request)
+                    temp_pair= make_pair(HTTP_Utils::HTTP_TYPE,token->get_array());
+                else if (response)
+                    temp_pair= make_pair(HTTP_Utils::STATUS,token->get_array());
+                values->insert(temp_pair);
+                token = new Dynamic_array();
+            }
         } else { // header
             token = new Dynamic_array();
             string key = "";

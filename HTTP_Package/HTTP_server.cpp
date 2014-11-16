@@ -2,6 +2,7 @@
 
 HTTP_server::HTTP_server(int port_number) {
   this->port_number = port_number;
+  http_generator = new HTTP_Generator("");
 }
 
 void HTTP_server::start() {
@@ -56,8 +57,7 @@ void HTTP_server::onNewClient(int clientfd) {
   receive_get_request(clientfd, &values);
 
   // TODO(houssainy)
-  string msg = "HTTP/1.1 200 OK\r\nContent-Length:10\r\n\r\nMohamedALi\r\n";
-  send(clientfd, msg.c_str(), msg.size());
+  send_response(clientfd, values[HTTP_Utils::HTTP_TYPE], values[HTTP_Utils::FILE_NAME]);
   close_connection(clientfd);
 }
 
@@ -86,8 +86,23 @@ void HTTP_server::receive_post_request(int clientfd, unordered_map<string, char*
 
 }
 
-void HTTP_server::send_response(int clientfd, char* requested_path) {
+void HTTP_server::send_response(int clientfd, char* http_type, char* requested_path) {
+  string response;
+  ifstream file(requested_path);
+  if (file.is_open()) {
+    response = http_generator->generate_get_response(http_type, HTTP_Utils::OK, " ", 0);
+    send(clientfd, response.c_str(), response.size());
 
+    Dynamic_array data;
+    char c;
+    while(file.get(c))
+      data.insert(c);
+
+    send(clientfd, data.get_array(), data.size());
+  } else {
+    response = http_generator->generate_get_response(http_type, HTTP_Utils::NOT_FOUND, " ", 0);
+    send(clientfd, response.c_str(), response.size());
+  }
 }
 
 void HTTP_server::send(int clientfd, const char* buf, int length) {
